@@ -23,3 +23,7 @@ A simple and intuitive Task Manager application built using **React** and **Vite
 
 ### Back-End (In Progress):
 - A back-end system is being developed to support features like user authentication, data persistence, and API integration. Stay tuned for updates!
+
+## Quick Access
+🌐 Website: TaskManager Web App
+📦 Repository: GitHub - TaskManager
