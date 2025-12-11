@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import "./App.css"; // Import your CSS file here
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -35,7 +34,7 @@ function App() {
     }
 
     const newTask = {
-      id: tasks.length + 1,
+      id: Date.now(),
       task,
       priority,
       deadline,
@@ -50,122 +49,182 @@ function App() {
   };
 
   const markDone = (id) => {
-    const updatedTasks = tasks.map((t) =>
-      t.id === id ? { ...t, done: true } : t
-    );
-    setTasks(updatedTasks);
-
     const completedTask = tasks.find((t) => t.id === id);
     if (completedTask) {
-      setCompletedTasks([...completedTasks, completedTask]);
+      setCompletedTasks([...completedTasks, { ...completedTask, done: true }]);
+      setTasks(tasks.filter((t) => t.id !== id));
     }
   };
 
-  const upcomingTasks = tasks.filter((t) => !t.done);
+  const getPriorityColor = (priority) => {
+    switch (priority) {
+      case "top":
+        return "bg-red-500/20 text-red-300 border border-red-500/30";
+      case "middle":
+        return "bg-amber-500/20 text-amber-300 border border-amber-500/30";
+      case "low":
+        return "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30";
+      default:
+        return "bg-gray-500/20 text-gray-300 border border-gray-500/30";
+    }
+  };
+
+  const getPriorityLabel = (priority) => {
+    switch (priority) {
+      case "top":
+        return "High";
+      case "middle":
+        return "Medium";
+      case "low":
+        return "Low";
+      default:
+        return priority;
+    }
+  };
 
   return (
-    <div className="App">
-      
-        <h1><span className="header" >Task Manager</span></h1>
-      
-      <main>
-        <div className="task-form">
-          <input
-            type="text"
-            id="task"
-            placeholder="Enter task..."
-            value={task}
-            onChange={handleTaskChange}
-          />
-          <select
-            id="priority"
-            value={priority}
-            onChange={handlePriorityChange}
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-10">
+          <h1 className="text-4xl sm:text-6xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-3 tracking-tight">
+            Task Manager
+          </h1>
+          <p className="text-gray-400 text-sm sm:text-base">Organize your work, simplify your life</p>
+        </div>
+
+        {/* Task Input Form */}
+        <div className="backdrop-blur-xl bg-white/5 rounded-3xl shadow-2xl p-6 mb-8 border border-white/10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+            <input
+              type="text"
+              placeholder="Enter task..."
+              value={task}
+              onChange={handleTaskChange}
+              className="col-span-1 sm:col-span-2 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all text-sm backdrop-blur-sm"
+            />
+            <select
+              value={priority}
+              onChange={handlePriorityChange}
+              className="px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all text-sm backdrop-blur-sm"
+            >
+              <option value="top" className="bg-slate-900">High Priority</option>
+              <option value="middle" className="bg-slate-900">Medium Priority</option>
+              <option value="low" className="bg-slate-900">Low Priority</option>
+            </select>
+            <input
+              type="date"
+              value={deadline}
+              onChange={handleDeadlineChange}
+              className="px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all text-sm backdrop-blur-sm [color-scheme:dark]"
+            />
+          </div>
+          <button
+            onClick={addTask}
+            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white py-3.5 rounded-xl font-medium transition-all duration-300 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/40 active:scale-[0.98] text-sm"
           >
-            <option value="top">Top Priority</option>
-            <option value="middle">Middle Priority</option>
-            <option value="low">Less Priority</option>
-          </select>
-          <input
-            type="date"
-            id="deadline"
-            value={deadline}
-            onChange={handleDeadlineChange}
-          />
-          <button id="add-task" onClick={addTask}>
             Add Task
-
-            <span className="svg">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="50"
-                height="20"
-                viewBox="0 0 38 15"
-                fill="none"
-              >
-                <path
-                  fill="white"
-                  d="M10 7.519l-.939-.344h0l.939.344zm14.386-1.205l-.981-.192.981.192zm1.276 5.509l.537.843.148-.094.107-.139-.792-.611zm4.819-4.304l-.385-.923h0l.385.923zm7.227.707a1 1 0 0 0 0-1.414L31.343.448a1 1 0 0 0-1.414 0 1 1 0 0 0 0 1.414l5.657 5.657-5.657 5.657a1 1 0 0 0 1.414 1.414l6.364-6.364zM1 7.519l.554.833.029-.019.094-.061.361-.23 1.277-.77c1.054-.609 2.397-1.32 3.629-1.787.617-.234 1.17-.392 1.623-.455.477-.066.707-.008.788.034.025.013.031.021.039.034a.56.56 0 0 1 .058.235c.029.327-.047.906-.39 1.842l1.878.689c.383-1.044.571-1.949.505-2.705-.072-.815-.45-1.493-1.16-1.865-.627-.329-1.358-.332-1.993-.244-.659.092-1.367.305-2.056.566-1.381.523-2.833 1.297-3.921 1.925l-1.341.808-.385.245-.104.068-.028.018c-.011.007-.011.007.543.84zm8.061-.344c-.198.54-.328 1.038-.36 1.484-.032.441.024.94.325 1.364.319.45.786.64 1.21.697.403.054.824-.001 1.21-.09.775-.179 1.694-.566 2.633-1.014l3.023-1.554c2.115-1.122 4.107-2.168 5.476-2.524.329-.086.573-.117.742-.115s.195.038.161.014c-.15-.105.085-.139-.076.685l1.963.384c.192-.98.152-2.083-.74-2.707-.405-.283-.868-.37-1.28-.376s-.849.069-1.274.179c-1.65.43-3.888 1.621-5.909 2.693l-2.948 1.517c-.92.439-1.673.743-2.221.87-.276.064-.429.065-.492.057-.043-.006.066.003.155.127.07.099.024.131.038-.063.014-.187.078-.49.243-.94l-1.878-.689zm14.343-1.053c-.361 1.844-.474 3.185-.413 4.161.059.95.294 1.72.811 2.215.567.544 1.242.546 1.664.459a2.34 2.34 0 0 0 .502-.167l.15-.076.049-.028.018-.011c.013-.008.013-.008-.524-.852l-.536-.844.019-.012c-.038.018-.064.027-.084.032-.037.008.053-.013.125.056.021.02-.151-.135-.198-.895-.046-.734.034-1.887.38-3.652l-1.963-.384zm2.257 5.701l.791.611.024-.031.08-.101.311-.377 1.093-1.213c.922-.954 2.005-1.894 2.904-2.27l-.771-1.846c-1.31.547-2.637 1.758-3.572 2.725l-1.184 1.314-.341.414-.093.117-.025.032c-.01.013-.01.013.781.624zm5.204-3.381c.989-.413 1.791-.42 2.697-.307.871.108 2.083.385 3.437.385v-2c-1.197 0-2.041-.226-3.19-.369-1.114-.139-2.297-.146-3.715.447l.771 1.846z"
-                ></path>
-              </svg>
-            </span>
-
           </button>
         </div>
-        <h2 className="heading">Upcoming Tasks</h2>
-        <div className="task-list" id="task-list">
-          <table>
-            <thead>
-              <tr>
-                <th>Task Name</th>
-                <th>Priority</th>
-                <th>Deadline</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {upcomingTasks.map((t) => (
-                <tr key={t.id}>
-                  <td>{t.task}</td>
-                  <td>{t.priority}</td>
-                  <td>{t.deadline}</td>
-                  <td>
-                    {!t.done && (
-                      <button
-                        className="mark-done"
-                        onClick={() => markDone(t.id)}
-                      >
-                        Mark Done
-                      </button>
-                    )}
-                  </td>
-                </tr>
+
+        {/* Upcoming Tasks */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold text-white mb-5 flex items-center gap-3">
+            <span className="w-1 h-7 bg-gradient-to-b from-blue-500 to-purple-500 rounded-full"></span>
+            Upcoming Tasks
+            <span className="text-sm font-normal text-gray-500 bg-white/5 px-3 py-1 rounded-full border border-white/10">
+              {tasks.length}
+            </span>
+          </h2>
+          
+          {tasks.length === 0 ? (
+            <div className="backdrop-blur-xl bg-white/5 rounded-3xl shadow-2xl p-12 text-center border border-white/10">
+              <div className="text-gray-600 mb-2">
+                <svg className="w-20 h-20 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                </svg>
+              </div>
+              <p className="text-gray-400 text-lg">No tasks yet</p>
+              <p className="text-gray-600 text-sm mt-1">Add one to get started</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {tasks.map((t) => (
+                <div
+                  key={t.id}
+                  className="backdrop-blur-xl bg-white/5 rounded-2xl shadow-xl p-5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all duration-300 group"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-white mb-3 break-words text-lg">{t.task}</h3>
+                      <div className="flex flex-wrap items-center gap-2 text-sm">
+                        <span className={`px-3 py-1.5 rounded-lg font-medium text-xs backdrop-blur-sm ${getPriorityColor(t.priority)}`}>
+                          {getPriorityLabel(t.priority)}
+                        </span>
+                        <span className="text-gray-400 flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          {new Date(t.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => markDone(t.id)}
+                      className="bg-emerald-600/80 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl font-medium transition-all duration-300 text-sm whitespace-nowrap active:scale-95 shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 border border-emerald-500/30"
+                    >
+                      Complete
+                    </button>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
+            </div>
+          )}
         </div>
-        <div className="completed-task-list">
-          <h2 className="cheading">Completed Tasks</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Task Name</th>
-                <th>Priority</th>
-                <th>Deadline</th>
-              </tr>
-            </thead>
-            <tbody>
+
+        {/* Completed Tasks */}
+        {completedTasks.length > 0 && (
+          <div>
+            <h2 className="text-xl font-semibold text-white mb-5 flex items-center gap-3">
+              <span className="w-1 h-7 bg-gradient-to-b from-emerald-500 to-teal-500 rounded-full"></span>
+              Completed
+              <span className="text-sm font-normal text-gray-500 bg-white/5 px-3 py-1 rounded-full border border-white/10">
+                {completedTasks.length}
+              </span>
+            </h2>
+            <div className="space-y-3">
               {completedTasks.map((ct) => (
-                <tr key={ct.id}>
-                  <td>{ct.task}</td>
-                  <td>{ct.priority}</td>
-                  <td>{ct.deadline}</td>
-                </tr>
+                <div
+                  key={ct.id}
+                  className="backdrop-blur-xl bg-white/5 rounded-2xl shadow-xl p-5 border border-white/10 opacity-60 hover:opacity-80 transition-all duration-300"
+                >
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-gray-400 mb-3 line-through break-words text-lg">{ct.task}</h3>
+                      <div className="flex flex-wrap items-center gap-2 text-sm">
+                        <span className={`px-3 py-1.5 rounded-lg font-medium text-xs backdrop-blur-sm ${getPriorityColor(ct.priority)}`}>
+                          {getPriorityLabel(ct.priority)}
+                        </span>
+                        <span className="text-gray-500 flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-lg border border-white/10">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          {new Date(ct.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2 text-emerald-400">
+                      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
-      </main>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
